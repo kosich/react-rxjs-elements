@@ -16,6 +16,12 @@ Or try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=inde
 
 ## Use
 
+Simply add an Observable as one of `<$>`'s children:
+
+```tsx
+<$>{ stream$ }</$>
+```
+
 A simple timer
 
 ```tsx
@@ -32,11 +38,16 @@ function App(){
 A button that counts and displays it's clicks
 
 ```tsx
+import React from 'react';
+import { $ } from 'react-rxjs-elements';
+import { Subject } from 'rxjs';
+import { startWith, scan } from 'rxjs/operators';
+
 function App (){
   const subject$ = new Subject();
   const output$ = subject$.pipe(
-    startWith(0),
-    scan(acc => acc + 1),
+    startWith(0),          // display a 0
+    scan(acc => acc + 1),  // update on each click
   );
 
   return <button onClick={()=>subject$.next()}>
