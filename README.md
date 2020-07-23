@@ -7,7 +7,7 @@
     <br/>
     <br/>
     <a href="https://www.npmjs.com/package/react-rxjs-elements"><img src="https://img.shields.io/npm/v/react-rxjs-elements" alt="NPM"></a>
-    <a href="https://bundlephobia.com/result?p=react-rxjs-elements@0.0.1"><img src="https://img.shields.io/bundlephobia/minzip/react-rxjs-elements?label=gzipped" alt="Bundlephobia"></a>
+    <a href="https://bundlephobia.com/result?p=react-rxjs-elements@latest"><img src="https://img.shields.io/bundlephobia/minzip/react-rxjs-elements?label=gzipped" alt="Bundlephobia"></a>
     <a href="https://opensource.org/licenses/MIT" rel="nofollow"><img src="https://img.shields.io/npm/l/react-rxjs-elements" alt="MIT license"></a>
     <br/>
     <br/>
