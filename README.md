@@ -28,13 +28,13 @@ Simply add an Observable as one of `<$>`'s children:
 And `react-rxjs-elements` will subscribe to it and will display it's updates in place.    
 It will also clean up all subscriptions for you on component unmount.
 
+Try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=index.tsx)
+
 ## Install
 
 ```
 npm i react-rxjs-elements
 ```
-
-Or try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=index.tsx)!
 
 ## Examples
 
@@ -42,6 +42,7 @@ A simple timer
 
 ```tsx
 import React from 'react';
+import { timer } from 'rxjs';
 import { $ } from 'react-rxjs-elements';
 
 function App(){
