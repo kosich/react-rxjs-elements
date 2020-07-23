@@ -35,7 +35,7 @@ function App(){
 }
 ```
 
-A button that counts and displays it's clicks
+A counter
 
 ```tsx
 import React from 'react';
@@ -45,14 +45,23 @@ import { startWith, scan } from 'rxjs/operators';
 
 function App (){
   const subject$ = new Subject();
+
   const output$ = subject$.pipe(
-    startWith(0),          // display a 0
-    scan(acc => acc + 1),  // update on each click
+    startWith(0),                   // start with a 0
+    scan((acc, curr) => acc + curr) // then add +1 or -1
   );
 
-  return <button onClick={()=>subject$.next()}>
+  return <div>
+    <button onClick={()=>subject$.next(-1)}>
+      -
+    </button>
+    
     <$>{ output$ }</$>
-  </button>
+  
+    <button onClick={()=>subject$.next(+1)}>
+      +
+    </button>
+  </div>
 }
 ```
 
