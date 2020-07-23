@@ -1,7 +1,7 @@
 <div align="center">
   <h1>
     <br/>
-    &lt;＆&gt;
+    &lt;$&gt;
     <br/>
     <sub><sub>react fragment for RxJS content</sub></sub>
     <br/>
