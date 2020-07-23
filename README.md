@@ -1,4 +1,12 @@
-# React fragment for RxJS content
+<div align="center">
+  <h1>
+    <br/>
+    &lt;＆&gt;
+    <br/>
+    <sub>React fragment for Observable RxJS content</sub>
+    <br/>
+  </h1>
+</div>
 
 [![NPM](https://img.shields.io/npm/v/react-rxjs-elements)](https://www.npmjs.com/package/react-rxjs-elements) [![Bundlephobia](https://img.shields.io/bundlephobia/minzip/react-rxjs-elements?label=gzipped)](https://bundlephobia.com/result?p=react-rxjs-elements@0.0.1) [![MIT license](https://img.shields.io/npm/l/react-rxjs-elements)](https://opensource.org/licenses/MIT)
 
