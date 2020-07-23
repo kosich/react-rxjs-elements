@@ -22,6 +22,12 @@
 `react-rxjs-elements` will subscribe to it's Observable children and will display their updates in place.    
 It will also clean up all subscriptions for you on component unmount.
 
+Simply add an Observable as one of `<$>`'s children:
+
+```tsx
+<$>{ stream$ }</$>
+```
+
 
 ## Install
 
@@ -31,13 +37,7 @@ npm i react-rxjs-elements
 
 Or try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=index.tsx)!
 
-## Use
-
-Simply add an Observable as one of `<$>`'s children:
-
-```tsx
-<$>{ stream$ }</$>
-```
+## Examples
 
 A simple timer
 
