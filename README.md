@@ -19,15 +19,14 @@
 [![NPM](https://img.shields.io/npm/v/react-rxjs-elements)](https://www.npmjs.com/package/react-rxjs-elements) [![Bundlephobia](https://img.shields.io/bundlephobia/minzip/react-rxjs-elements?label=gzipped)](https://bundlephobia.com/result?p=react-rxjs-elements@0.0.1) [![MIT license](https://img.shields.io/npm/l/react-rxjs-elements)](https://opensource.org/licenses/MIT)
 -->
 
-`react-rxjs-elements` will subscribe to it's Observable children and will display their updates in place.    
-It will also clean up all subscriptions for you on component unmount.
-
 Simply add an Observable as one of `<$>`'s children:
 
 ```tsx
 <$>{ stream$ }</$>
 ```
 
+And `react-rxjs-elements` will subscribe to it and will display it's updates in place.    
+It will also clean up all subscriptions for you on component unmount.
 
 ## Install
 
