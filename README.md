@@ -25,18 +25,18 @@ Simply add an Observable as one of `<$>`'s children:
 <$>{ stream$ }</$>
 ```
 
-And `react-rxjs-elements` will subscribe to it and will display it's updates in place.    
-It will also clean up all subscriptions for you on component unmount.
+`<$>` will subscribe to the `stream$` and will display it's updates in place.    
+And it will clean up all subscriptions for you on component unmount.
 
 Try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=index.tsx)
 
-## Install
+## 📦 Install
 
 ```
 npm i react-rxjs-elements
 ```
 
-## Examples
+## 📖 Examples
 
 A simple timer
 
@@ -52,6 +52,34 @@ function App(){
 }
 ```
 
+[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-timer?file=index.tsx)
+
+---
+
+A data fetch (with RxJS [fromFetch](https://rxjs.dev/api/fetch/fromFetch))
+
+```tsx
+import React, { useMemo } from "react";
+import { map, switchMap } from "rxjs/operators";
+import { fromFetch } from "rxjs/fetch";
+import { $ } from "react-rxjs-elements";
+
+function App() {
+  const data$ = useMemo(() =>
+    fromFetch(URL).pipe(
+      switchMap(response => response.json()),
+      map(data => data.description)
+    )
+  , []);
+
+  return <$>{ data$ }</$>
+}
+```
+
+[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-fetch?file=index.tsx)
+
+---
+
 A counter
 
 ```tsx
@@ -61,12 +89,14 @@ import { Subject } from 'rxjs';
 import { startWith, scan } from 'rxjs/operators';
 
 function App (){
-  const subject$ = new Subject();
+  const subject$ = useMemo(() => new Subject(), []);
 
-  const output$ = subject$.pipe(
-    startWith(0),                   // start with a 0
-    scan((acc, curr) => acc + curr) // then add +1 or -1
-  );
+  const output$ = useMemo(() =>
+    subject$.pipe(
+      startWith(0),                   // start with a 0
+      scan((acc, curr) => acc + curr) // then add +1 or -1
+    )
+  , []);
 
   return <div>
     <button onClick={()=>subject$.next(-1)}>
@@ -82,4 +112,6 @@ function App (){
 }
 ```
 
-## Enjoy 🙂 
+[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-counter?file=index.tsx)
+
+## 🙂 Enjoy
