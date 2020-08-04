@@ -46,9 +46,7 @@ import { timer } from 'rxjs';
 import { $ } from 'react-rxjs-elements';
 
 function App(){
-  return <div>
-    <$>{ timer(0, 1000) } sec</$>
-  </div>
+  return <$>{ timer(0, 1000) } sec</$>
 }
 ```
 
