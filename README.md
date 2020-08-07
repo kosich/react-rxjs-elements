@@ -3,7 +3,7 @@
     <br/>
     &lt;$&gt;
     <br/>
-    <sub><sub>react fragment for RxJS content</sub></sub>
+    <sub><sub>react elements for RxJS content</sub></sub>
     <br/>
     <br/>
     <a href="https://www.npmjs.com/package/react-rxjs-elements"><img src="https://img.shields.io/npm/v/react-rxjs-elements" alt="NPM"></a>
@@ -25,7 +25,13 @@ Simply add an Observable as one of `<$>`'s children:
 <$>{ stream$ }</$>
 ```
 
-`<$>` will subscribe to the `stream$` and will display it's updates in place.    
+or use a dynamic element, like $img
+
+```tsx
+<$img src={ stream$ } />
+```
+
+`react-rxjs-elements` will subscribe to the `stream$` and will display it's updates in place.    
 And it will clean up all subscriptions for you on component unmount.
 
 Try it [**online**](https://stackblitz.com/edit/react-rxjs-elements?file=index.tsx)
@@ -38,55 +44,68 @@ npm i react-rxjs-elements
 
 ## 📖 Examples
 
-A simple timer
+A simple timer — [online sandbox](https://stackblitz.com/edit/react-rxjs-elements-timer?file=index.tsx)
 
 ```tsx
 import React from 'react';
 import { timer } from 'rxjs';
 import { $ } from 'react-rxjs-elements';
 
-function App(){
+function App() {
   return <$>{ timer(0, 1000) } sec</$>
 }
 ```
 
-[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-timer?file=index.tsx)
+---
+
+Dynamic image sources — [online sandbox](https://stackblitz.com/edit/react-rxjs-elements-img?file=index.tsx)
+
+```tsx
+import React from 'react';
+import { timer } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { $img } from 'react-rxjs-elements';
+
+function App() {
+  const src$ = timer(0, 3000).pipe(
+    map(x => (x % 2) ? 'a.jpg' : 'b.jpg')
+  );
+
+  return <$img src={ src$ } />
+}
+```
 
 ---
 
-A data fetch (with RxJS [fromFetch](https://rxjs.dev/api/fetch/fromFetch))
+A data fetch (with RxJS [ajax](https://rxjs.dev/api/ajax/ajax)) — [online sandbox](https://stackblitz.com/edit/react-rxjs-elements-fetch?file=index.tsx)
 
 ```tsx
 import React, { useMemo } from "react";
 import { map, switchMap } from "rxjs/operators";
-import { fromFetch } from "rxjs/fetch";
+import { ajax } from "rxjs/ajax";
 import { $ } from "react-rxjs-elements";
+
 
 function App() {
   const data$ = useMemo(() =>
-    fromFetch(URL).pipe(
-      switchMap(response => response.json()),
-      map(data => data.description)
-    )
+    ajax.getJSON(URL)
   , []);
 
-  return <$>{ data$ }</$>
+  return <$>{data$}</$>;
 }
 ```
 
-[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-fetch?file=index.tsx)
-
 ---
 
-A counter
+A counter — [online sandbox](https://stackblitz.com/edit/react-rxjs-elements-counter?file=index.tsx)
 
 ```tsx
 import React from 'react';
-import { $ } from 'react-rxjs-elements';
+import { $div } from 'react-rxjs-elements';
 import { Subject } from 'rxjs';
 import { startWith, scan } from 'rxjs/operators';
 
-function App (){
+function App() {
   const subject$ = useMemo(() => new Subject(), []);
 
   const output$ = useMemo(() =>
@@ -96,20 +115,19 @@ function App (){
     )
   , []);
 
-  return <div>
+  return <$div>
     <button onClick={()=>subject$.next(-1)}>
       -
     </button>
     
-    <$>{ output$ }</$>
+    { output$  /* results would be displayed in place */ }
   
     <button onClick={()=>subject$.next(+1)}>
       +
     </button>
-  </div>
+  </$div>
 }
 ```
 
-[online sandbox](https://stackblitz.com/edit/react-rxjs-elements-counter?file=index.tsx)
 
 ## 🙂 Enjoy
