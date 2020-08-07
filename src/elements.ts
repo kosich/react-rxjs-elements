@@ -159,12 +159,15 @@ function cleanSubscription(store, key) {
 // Q: should that be statically generated on build or created on demand?
 export const $a = createElement$('a');
 export const $img = createElement$('img');
+
 export const $p = createElement$('p');
 export const $span = createElement$('span');
 export const $div = createElement$('div');
-export const $textarea = createElement$('textarea');
-export const $input = createElement$('input');
+
 export const $form = createElement$('form');
+export const $input = createElement$('input');
+export const $textarea = createElement$('textarea');
+export const $select = createElement$('select');
 export const $button = createElement$('button');
 // }}}
 
