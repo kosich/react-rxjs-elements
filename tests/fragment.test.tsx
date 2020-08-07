@@ -6,7 +6,7 @@ import { $ } from '../src/index';
 import { ErrorBoundary } from './ErrorBoundary';
 
 
-describe('Basic', () => {
+describe('Fragment', () => {
     let rootElement;
 
     beforeEach(() => {
