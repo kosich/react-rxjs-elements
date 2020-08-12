@@ -91,6 +91,9 @@ describe('Fragment', () => {
     });
 
     test('errors', () => {
+      // NOTE: this error propagates to the console
+      //       it doesn't affect passing test, but creates visual mess
+      // TODO: suppress the error
       act(() => { content$.error('ONE'); });
       expect(rootElement.innerHTML).toBe('ERROR:ONE');
     });

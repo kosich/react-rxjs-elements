@@ -13,7 +13,6 @@ class ErrorBoundary extends Component<any, { hasError: boolean, error: any }> {
 
   componentDidCatch(error, errorInfo) {
     // You can also log the error to an error reporting service
-    // logErrorToMyService(error, errorInfo);
     console.log(error, errorInfo);
   }
 
