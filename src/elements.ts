@@ -1,32 +1,30 @@
-import { ComponentClass, createElement, FunctionComponent, useEffect, useMemo, useState } from 'react';
-import { isObservable, Subject } from 'rxjs';
+import { ComponentClass, createElement, FunctionComponent, useMemo, useState } from 'react';
+import { isObservable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { $ } from './fragment';
+import { useDestroyObservable, useEmptyObject } from './shared';
 
 // TODO: handle ref
 // TODO: add better TS support
 
-const EMPTY_DEPENDENCIES = [];
-const useEmptyObject = () => useMemo(() => Object.create(null), EMPTY_DEPENDENCIES);
-
 /**
  * creates a dynamic component that will subscribe to passed Observable props
- * 
+ *
  * Example:
- * 
+ *
  * ```jsx
  * import React from 'react';
  * import { createElement$ } from 'react-rxjs-elements';
  * import { timer } from 'rxjs';
- * 
+ *
  * function App(){
  *   const $div = createElement$('div');
  *   const timer$ = timer(0, 1000);
- * 
+ *
  *   return <$div title={ timer$ } >Hello world</div>
  * }
  * ```
- * 
+ *
  * @param element element tag ('div', 'input', '...') or component function/class
  * @returns FunctionComponent that observes it's Observable params and children
  */
@@ -40,14 +38,7 @@ export function createElement$<T>(element: string | FunctionComponent<T> | Compo
     // placeholder for Observable.error case -- will use it to rethrow error
     const [error, setError] = useState<{ error: any }>(null);
 
-    // destroy$ stream helper {{{
-    // it will emit an empty value on unmount
-    const destroy$ = useMemo(() => new Subject<void>(), EMPTY_DEPENDENCIES);
-    useEffect(() => () => {
-      destroy$.next(void 0);
-      destroy$.complete();
-    }, EMPTY_DEPENDENCIES);
-    // }}}
+    const destroy$ = useDestroyObservable();
 
     // store prev props to compare
     const _prevProps = useEmptyObject();

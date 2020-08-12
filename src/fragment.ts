@@ -1,15 +1,16 @@
-import { createElement, Fragment, useEffect, useState } from "react";
+import { createElement, Fragment, useMemo, useState } from "react";
 import { isObservable } from "rxjs";
+import { takeUntil } from "rxjs/operators";
+import { useDestroyObservable } from "./shared";
 
-// TODO: use useMemo instead of useEffect
 // TODO: add better TS support
 
 /**
  * <$> fragment will subscribe to it's Observable children and display
  * it's emissions along with regular children
- * 
+ *
  * e.g.
- * 
+ *
  * ```jsx
  * function App(){
  *   return <$>{ timer(0, 1000) }</$>    // 0, 1, 2, 3, ...
@@ -23,30 +24,32 @@ export function $(props) {
   const [cn, setCn] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // multiple children, one of em might be observable
+  const destroy$ = useDestroyObservable();
+
+  useMemo(() => {
+    // array of children, one of em might be observable
     if (Array.isArray(children)) {
       setCn(children.map(c => createElement($, null, c)));
       return;
     }
 
-    // single observable child
+    // child is a single observable
     if (isObservable(children)) {
-      const sub = children.subscribe({
-        next(cn) {
-          // update the view
-          setCn(cn);
-        },
-        error(error) {
-          // wrap error in an object to be safe in case the error is nullish
-          setError({ error });
-        }
-      });
+      children
+        .pipe(
+          takeUntil(destroy$)
+        )
+        .subscribe({
+          next: setCn,   // update the view
+          error(error) { // wrap error in an object to be safe in case the error is nullish
+            setError({ error });
+          }
+        });
 
-      return () => sub.unsubscribe();
+      return;
     }
 
-    // child is just a child
+    // child is a regular child, like you and me
     setCn(children);
   }, [children]);
 
