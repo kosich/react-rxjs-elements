@@ -58,8 +58,12 @@ export function $(props) {
     throw error.error;
   }
 
-  // render children as array
+  // NOTE: array children are rendered inside <></> fragment
+  //       while regular children are rendered directly as children of <$>,
+  //       without additional <>
+  //       this might be an unwanted behavior difference
+  // TODO: research for real-life effects of this difference
   return Array.isArray(cn)
     ? createElement(Fragment, null, ...cn)
-    : createElement(Fragment, null, cn)     // TODO: investigate if Fragment is needed here
+    : cn
 }
