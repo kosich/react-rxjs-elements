@@ -1,4 +1,4 @@
-import { ComponentClass, createElement, FunctionComponent, useMemo, useState } from 'react';
+import { ComponentClass, createElement, FunctionComponent, useEffect, useState } from 'react';
 import { isObservable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { $ } from './fragment';
@@ -46,9 +46,7 @@ export function createElement$<T>(element: string | FunctionComponent<T> | Compo
     // keep subscriptions to unsubscribe on dynamic prop update
     const _subs = useEmptyObject();
 
-    // useMemo to update props
-    // unlike useEffect, it will be executed with the first render
-    useMemo(() => {
+    useEffect(() => {
       // check for obsolete props
       const delProps = Object.create(null);
       Object.keys(_prevProps).forEach(key => {
@@ -99,7 +97,7 @@ export function createElement$<T>(element: string | FunctionComponent<T> | Compo
       // & update static props
       setStateProps(p => Object.assign({}, p, delProps, nextProps));
 
-      streamKeys.map(key => {
+      streamKeys.forEach(key => {
         _subs[key] = props[key]
           .pipe(
             takeUntil(destroy$)
