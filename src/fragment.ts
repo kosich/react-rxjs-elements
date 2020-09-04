@@ -1,4 +1,4 @@
-import { createElement, Fragment, useMemo, useState } from "react";
+import { createElement, Fragment, useEffect, useState } from "react";
 import { isObservable } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 import { useDestroyObservable } from "./shared";
@@ -26,7 +26,7 @@ export function $(props) {
 
   const destroy$ = useDestroyObservable();
 
-  useMemo(() => {
+  useEffect(() => {
     // array of children, one of em might be observable
     if (Array.isArray(children)) {
       setCn(children.map(c => createElement($, null, c)));

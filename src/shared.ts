@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Subject } from 'rxjs';
 
 
@@ -11,7 +11,9 @@ export const EMPTY_DEPENDENCIES = [];
  * empty Object wiht no dependencies
  */
 export function useEmptyObject() {
-  return useMemo(() => Object.create(null), EMPTY_DEPENDENCIES);
+  const [object] = useState(Object.create(null));
+
+  return object;
 }
 
 /**
@@ -19,7 +21,7 @@ export function useEmptyObject() {
  * it will emit an empty value on unmount
  */
 export function useDestroyObservable() {
-  const destroy$ = useMemo(() => new Subject<void>(), EMPTY_DEPENDENCIES);
+  const [destroy$] = useState(new Subject<void>());
 
   useEffect(() => () => {
     destroy$.next(void 0);
