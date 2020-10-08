@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { of, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { $ } from '../src/index';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -66,14 +66,6 @@ describe('Fragment', () => {
       act(() => { b$.next('b'); });
       expect(rootElement.innerHTML).toBe('a and b');
     });
-  });
-
-  describe('Immediate rendering', () => {
-    it('should render of stream immediately', () =>{
-      const App = () => <$>{of('value')}</$>;
-      render(<App />, rootElement);
-      expect(rootElement.innerHTML).toBe('value');
-    })
   });
 
   describe('Error', () => {

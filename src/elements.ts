@@ -30,7 +30,7 @@ import { useDestroyObservable, useEmptyObject } from './shared';
  */
 export function createElement$<T>(element: string | FunctionComponent<T> | ComponentClass<T, any>): FunctionComponent<any> {
 
-  return (props: any) => {
+  return function element$(props: any) {
 
     // state for renderable props
     const [stateProps, setStateProps] = useState(Object.create(null));
@@ -141,22 +141,4 @@ function cleanSubscription(store, key) {
     delete store[key];
   }
 }
-
-
-// preset elements {{{
-// Q: should we prefab all possible elements?
-// Q: should that be statically generated on build or created on demand?
-export const $a = createElement$('a');
-export const $img = createElement$('img');
-
-export const $p = createElement$('p');
-export const $span = createElement$('span');
-export const $div = createElement$('div');
-
-export const $form = createElement$('form');
-export const $input = createElement$('input');
-export const $textarea = createElement$('textarea');
-export const $select = createElement$('select');
-export const $button = createElement$('button');
-// }}}
 
