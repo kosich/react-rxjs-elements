@@ -1,6 +1,6 @@
 import { ComponentClass, createElement, FunctionComponent, useEffect, useState } from 'react';
 import { isObservable, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { $ } from './fragment';
 import { useDestroyObservable, useEmptyObject } from './shared';
 
@@ -75,12 +75,13 @@ export function createElement$(element) {
         const value = props[key];
         const prevValue = _prevProps[key];
         const equal = Object.is(value, prevValue);
+        _prevProps[key] = value;
 
         if (!equal) {
-          _prevProps[key] = value;
           // if property changes and previous was Observable
           // we need to kill subscription
           cleanSubscription(_subs, key);
+          nextProps[key] = void 0;
         }
 
         // observable input params are auto observed
@@ -103,6 +104,7 @@ export function createElement$(element) {
       streamKeys.forEach(key => {
         _subs[key] = props[key]
           .pipe(
+            distinctUntilChanged(),
             takeUntil(destroy$)
           )
           .subscribe({

@@ -107,5 +107,47 @@ describe('Elements', () => {
         expect(rootElement.innerHTML).toBe('<div title="1"></div>');
         expect(unsub.mock.calls.length).toBe(1);
       })
+
+      xit('should not trigger update if all props are equal', () => {
+        let setState;
+        const updateState = () => setState(x => x + 1);
+        const spy = jest.fn(() => null);
+        const Child = createElement$(spy);
+        const App = () => {
+          [, setState] = useState(null);
+          return <Child />;
+        };
+
+        act(() => { render(<App />, rootElement); });
+        expect(spy.mock.calls.length).toBe(0);
+        act(updateState);
+        expect(spy.mock.calls.length).toBe(0);
+        act(updateState);
+        expect(spy.mock.calls.length).toBe(0);
+      })
+
+      it('should remove value from obsolete stream', () => {
+        let setState;
+        let subject$ = new Subject();
+        const App = () => {
+          const [state$, _setState] = useState(null);
+          setState = _setState;
+          return <$div title={state$}></$div>;
+        };
+
+        act(() => { render(<App />, rootElement); });
+        expect(rootElement.innerHTML).toBe('<div></div>');
+        act(() => setState(subject$));
+        expect(rootElement.innerHTML).toBe('<div></div>');
+        act(() => { subject$.next(0); });
+        expect(rootElement.innerHTML).toBe('<div title="0"></div>');
+        act(() =>{
+          subject$ = new Subject();
+          setState(subject$);
+        });
+        expect(rootElement.innerHTML).toBe('<div></div>');
+        act(() => { subject$.next(1); });
+        expect(rootElement.innerHTML).toBe('<div title="1"></div>');
+      })
     })
 })
