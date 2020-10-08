@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { $ } from '../src/index';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -91,4 +91,37 @@ describe('Fragment', () => {
     });
   });
 
+  describe('Updates', () => {
+    it('should unsubscribe from previous observable', () => {
+      let setState;
+      let i = 0;
+      const unsub = jest.fn();
+      const createSource = () =>
+        new Observable((observer) => {
+          observer.next(i);
+          i++;
+          return () => unsub();
+        });
+
+      const updateSource = () => {
+        setState(createSource())
+      }
+
+      const App = () => {
+        const [source$, _setState] = useState(null);
+        setState = _setState;
+        return <$>{source$}</$>;
+      };
+
+      act(() => { render(<App />, rootElement); });
+
+      expect(rootElement.innerHTML).toBe('');
+      act(updateSource);
+      expect(rootElement.innerHTML).toBe('0');
+      expect(unsub.mock.calls.length).toBe(0);
+      act(updateSource);
+      expect(rootElement.innerHTML).toBe('1');
+      expect(unsub.mock.calls.length).toBe(1);
+    })
+  })
 })
