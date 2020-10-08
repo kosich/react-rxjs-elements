@@ -29,24 +29,25 @@ export function $(props) {
   useEffect(() => {
     // array of children, one of em might be observable
     if (Array.isArray(children)) {
-      setCn(children.map(c => createElement($, null, c)));
+      setCn(
+        // recursively create another $ for Observables
+        children.map((c) => (isObservable(c) ? createElement($, null, c) : c))
+      );
       return;
     }
 
     // child is a single observable
     if (isObservable(children)) {
-      children
-        .pipe(
-          takeUntil(destroy$)
-        )
-        .subscribe({
-          next: setCn,   // update the view
-          error(error) { // wrap error in an object to be safe in case the error is nullish
-            setError({ error });
-          }
-        });
+      const sub = children.pipe(takeUntil(destroy$)).subscribe({
+        next: setCn, // update the view
+        error(error) {
+          // wrap error in an object to be safe in case the error is nullish
+          setError({ error });
+        },
+        // on complete we just keep displaying accumulated value
+      });
 
-      return;
+      return () => sub.unsubscribe();
     }
 
     // child is a regular child, like you and me
@@ -63,7 +64,5 @@ export function $(props) {
   //       without additional <>
   //       this might be an unwanted behavior difference
   // TODO: research for real-life effects of this difference
-  return Array.isArray(cn)
-    ? createElement(Fragment, null, ...cn)
-    : cn
+  return Array.isArray(cn) ? createElement(Fragment, null, ...cn) : cn;
 }
