@@ -2,7 +2,7 @@ import React from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import { Subject } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { createElement$ } from '../src/index';
 
 // TODO: cover memory leaking / unsubsciptions
@@ -44,7 +44,7 @@ describe('Elements', () => {
             expect(rootElement.innerHTML).toBe('<div></div>');
 
             const div = rootElement.querySelector('div');
-            act(() => { 
+            act(() => {
                 div.dispatchEvent(new MouseEvent('click', {bubbles: true}));
             });
 
@@ -58,16 +58,6 @@ describe('Elements', () => {
             expect(rootElement.innerHTML).toBe('<div>world</div>');
             act(() => { content$.next('Hello'); });
             expect(rootElement.innerHTML).toBe('<div title="Hello">world</div>');
-        });
-
-        test('dynamic value', () => {
-            // TODO: test if the input doesn't change controlled/uncontrolled mode
-            //       when we use Observables as value
-            //       https://reactjs.org/docs/forms.html#controlled-components
-            const value$ = new Subject();
-            const App = () => <$input readOnly value={ value$.pipe(startWith('')) } />;
-            act(() => { render(<App />, rootElement); });
-            expect(rootElement.innerHTML).toBe('<input readonly=\"\" value="">');
         });
 
     });
