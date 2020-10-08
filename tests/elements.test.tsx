@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { createElement$ } from '../src/index';
 
@@ -23,6 +23,15 @@ describe('Elements', () => {
         unmountComponentAtNode(rootElement);
         rootElement.remove();
         rootElement = null;
+    });
+
+    test('dynamic children', () => {
+        const content$ = new Subject();
+        const App = () => <$div>Hello, { content$ }</$div>;
+        act(() => { render(<App />, rootElement); });
+        expect(rootElement.innerHTML).toBe('<div>Hello, </div>');
+        act(() => { content$.next('world'); });
+        expect(rootElement.innerHTML).toBe('<div>Hello, world</div>');
     });
 
     describe('Params', () => {
@@ -62,12 +71,43 @@ describe('Elements', () => {
 
     });
 
-    test('dynamic children', () => {
-        const content$ = new Subject();
-        const App = () => <$div>Hello, { content$ }</$div>;
+    describe('Updates', () => {
+      it('should unsubscribe from previous observable', () => {
+        let setState, setState2;
+        let i = 0;
+        const unsub = jest.fn();
+        const createSource = () =>
+          new Observable((observer) => {
+            observer.next(i);
+            i++;
+            return () => unsub();
+          });
+
+        const updateSource = () => {
+          setState(createSource())
+        }
+
+        const App = () => {
+          const s1 = useState(null);
+          const s2 = useState(0);
+          [,setState] = s1;
+          [,setState2] = s2;
+          const [source$] = s1;
+          return <$div title={source$}></$div>;
+        };
+
         act(() => { render(<App />, rootElement); });
-        expect(rootElement.innerHTML).toBe('<div>Hello, </div>');
-        act(() => { content$.next('world'); });
-        expect(rootElement.innerHTML).toBe('<div>Hello, world</div>');
-    });
+
+        expect(rootElement.innerHTML).toBe('<div></div>');
+        act(updateSource);
+        expect(rootElement.innerHTML).toBe('<div title="0"></div>');
+        expect(unsub.mock.calls.length).toBe(0);
+        act(() => setState2((x) => x + 1));
+        expect(rootElement.innerHTML).toBe('<div title="0"></div>');
+        expect(unsub.mock.calls.length).toBe(0);
+        act(updateSource);
+        expect(rootElement.innerHTML).toBe('<div title="1"></div>');
+        expect(unsub.mock.calls.length).toBe(1);
+      })
+    })
 })

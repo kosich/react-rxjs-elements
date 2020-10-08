@@ -73,18 +73,22 @@ export function createElement$<T>(element: string | FunctionComponent<T> | Compo
           return;
         }
 
-        // if property changes and previous was Observable
-        // we need to kill subscription
-        if (!Object.is(props[key], _prevProps[key])) {
+        const value = props[key];
+        const prevValue = _prevProps[key];
+        const equal = Object.is(value, prevValue);
+
+        if (!equal) {
+          _prevProps[key] = value;
+          // if property changes and previous was Observable
+          // we need to kill subscription
           cleanSubscription(_subs, key);
         }
 
-        const value = props[key];
-        _prevProps[key] = value;
-
         // observable input params are auto observed
         if (isObservable(value)) {
-          streamKeys.push(key);
+          if (!equal) {
+            streamKeys.push(key);
+          }
         }
 
         // all static props are directly updated
