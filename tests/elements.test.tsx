@@ -5,11 +5,9 @@ import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { createElement$ } from '../src/index';
 
-// TODO: cover memory leaking / unsubsciptions
 // TODO: cover errors on Observables
 
 const $div = createElement$('div');
-const $input = createElement$('input');
 
 describe('Elements', () => {
     let rootElement;
@@ -61,7 +59,7 @@ describe('Elements', () => {
         });
 
         test('dynamic input', () => {
-            const content$ = new Subject();
+            const content$ = new Subject<string>();
             const App = () => <$div title={content$}>world</$div>;
             act(() => { render(<App />, rootElement); });
             expect(rootElement.innerHTML).toBe('<div>world</div>');
