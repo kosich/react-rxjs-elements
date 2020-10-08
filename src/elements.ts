@@ -1,11 +1,10 @@
 import { ComponentClass, createElement, FunctionComponent, useEffect, useState } from 'react';
-import { isObservable } from 'rxjs';
+import { isObservable, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { $ } from './fragment';
 import { useDestroyObservable, useEmptyObject } from './shared';
 
 // TODO: handle ref
-// TODO: add better TS support
 
 /**
  * creates a dynamic component that will subscribe to passed Observable props
@@ -28,10 +27,10 @@ import { useDestroyObservable, useEmptyObject } from './shared';
  * @param element element tag ('div', 'input', '...') or component function/class
  * @returns FunctionComponent that observes it's Observable params and children
  */
-export function createElement$<T>(element: string | FunctionComponent<T> | ComponentClass<T, any>): FunctionComponent<any> {
-
-  return function element$(props: any) {
-
+export function createElement$<T extends keyof JSX.IntrinsicElements>(element: T): FunctionComponent<{ [k in keyof JSX.IntrinsicElements[T]]: JSX.IntrinsicElements[T][k] | Observable<JSX.IntrinsicElements[T][k]> }>
+export function createElement$<P, S = any>(element: FunctionComponent<P> | ComponentClass<P, S>): FunctionComponent<{ [k in keyof P]: P[k] | Observable<P[k]> }>
+export function createElement$(element) {
+  return function element$(props) {
     // state for renderable props
     const [stateProps, setStateProps] = useState(Object.create(null));
 
@@ -115,6 +114,7 @@ export function createElement$<T>(element: string | FunctionComponent<T> | Compo
             error (error) {
               setError({ error });
             }
+            // on complete we just keep using accumulated value
           })
         });
     }, [props]);
