@@ -108,7 +108,7 @@ describe('Elements', () => {
         expect(unsub.mock.calls.length).toBe(1);
       })
 
-      xit('should not trigger update if all props are equal', () => {
+      it('should make useless updates if props are equal', () => {
         let setState;
         const updateState = () => setState(x => x + 1);
         const spy = jest.fn(() => null);
@@ -119,11 +119,11 @@ describe('Elements', () => {
         };
 
         act(() => { render(<App />, rootElement); });
-        expect(spy.mock.calls.length).toBe(0);
+        expect(spy.mock.calls.length).toBe(1);
         act(updateState);
-        expect(spy.mock.calls.length).toBe(0);
+        expect(spy.mock.calls.length).toBe(2);
         act(updateState);
-        expect(spy.mock.calls.length).toBe(0);
+        expect(spy.mock.calls.length).toBe(3);
       })
 
       it('should remove value from obsolete stream', () => {

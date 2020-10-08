@@ -46,6 +46,8 @@ export function createElement$(element) {
     const _subs = useEmptyObject();
 
     useEffect(() => {
+      let isDirty = false;
+
       // check for obsolete props
       const delProps = Object.create(null);
       Object.keys(_prevProps).forEach(key => {
@@ -53,12 +55,11 @@ export function createElement$(element) {
           return;
         }
 
+        isDirty = true;
         delete _prevProps[key];
-
         // if previous property was Observable
         // kill subscription
         cleanSubscription(_subs, key);
-
         // remove from static props
         delProps[key] = void 0;
       });
@@ -75,20 +76,22 @@ export function createElement$(element) {
         const value = props[key];
         const prevValue = _prevProps[key];
         const equal = Object.is(value, prevValue);
+
+        if (equal) {
+          return;
+        }
+
+        isDirty = true;
         _prevProps[key] = value;
 
-        if (!equal) {
-          // if property changes and previous was Observable
-          // we need to kill subscription
-          cleanSubscription(_subs, key);
-          nextProps[key] = void 0;
-        }
+        // if property changes and previous was Observable
+        // we need to kill subscription
+        cleanSubscription(_subs, key);
 
         // observable input params are auto observed
         if (isObservable(value)) {
-          if (!equal) {
-            streamKeys.push(key);
-          }
+          nextProps[key] = void 0;
+          streamKeys.push(key);
         }
 
         // all static props are directly updated
@@ -99,8 +102,11 @@ export function createElement$(element) {
 
       // remove obsolete props
       // & update static props
-      setStateProps(p => Object.assign({}, p, delProps, nextProps));
+      if (isDirty) {
+        setStateProps(p => Object.assign({}, p, delProps, nextProps));
+      }
 
+      // subscribe to new streams
       streamKeys.forEach(key => {
         _subs[key] = props[key]
           .pipe(
@@ -119,6 +125,7 @@ export function createElement$(element) {
             // on complete we just keep using accumulated value
           })
         });
+
     }, [props]);
 
     // if error -- throw
