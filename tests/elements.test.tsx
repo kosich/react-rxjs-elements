@@ -3,7 +3,7 @@ import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import { Observable, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { createElement$ } from '../src/index';
+import { $input, createElement$ } from '../src/index';
 
 // TODO: cover errors on Observables
 
@@ -148,6 +148,28 @@ describe('Elements', () => {
         expect(rootElement.innerHTML).toBe('<div></div>');
         act(() => { subject$.next(1); });
         expect(rootElement.innerHTML).toBe('<div title="1"></div>');
+      })
+    })
+
+    describe('Input value', () => {
+      it('should not set input value if absent', () => {
+        const App = () => <$input />;
+        act(() => { render(<App />, rootElement); });
+        expect(rootElement.innerHTML).toBe('<input>');
+      })
+
+      // NOTE: this doesn't test controlled -> uncontrolled switch
+      it('should set input value immediately', () => {
+        const content$ = new Subject<string>();
+        const App = () => <$input value={content$} />;
+        act(() => {
+          render(<App />, rootElement);
+          // NOTE: checking presense of value synchronously, inside act
+          expect(rootElement.innerHTML).toBe('<input value="">');
+        });
+        act(() => { content$.next('world'); });
+        expect(rootElement.innerHTML).toBe('<input value="world">');
+        expect(rootElement.children[0].value).toBe('world');
       })
     })
 })
