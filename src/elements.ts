@@ -32,7 +32,7 @@ export function createElement$<P, S = any>(element: FunctionComponent<P> | Compo
 export function createElement$(element) {
   return function element$(props) {
     // state for renderable props
-    const [stateProps, setStateProps] = useState(Object.create(null));
+    const [streamProps, setStreamProps] = useState(Object.create(null));
 
     // placeholder for Observable.error case -- will use it to rethrow error
     const [error, setError] = useState<{ error: any }>(null);
@@ -40,7 +40,7 @@ export function createElement$(element) {
     const destroy$ = useDestroyObservable();
 
     // store prev props to compare
-    const _prevProps = useEmptyObject();
+    const _prevStreamProps = useEmptyObject();
 
     // keep subscriptions to unsubscribe on dynamic prop update
     const _subs = useEmptyObject();
@@ -50,13 +50,13 @@ export function createElement$(element) {
 
       // check for obsolete props
       const delProps = Object.create(null);
-      Object.keys(_prevProps).forEach(key => {
+      Object.keys(_prevStreamProps).forEach(key => {
         if (key in props) {
           return;
         }
 
         isDirty = true;
-        delete _prevProps[key];
+        delete _prevStreamProps[key];
         // if previous property was Observable
         // kill subscription
         cleanSubscription(_subs, key);
@@ -74,39 +74,36 @@ export function createElement$(element) {
         }
 
         const value = props[key];
-        const prevValue = _prevProps[key];
+        const prevValue = _prevStreamProps[key];
         const equal = Object.is(value, prevValue);
 
         if (equal) {
           return;
         }
 
-        isDirty = true;
-        _prevProps[key] = value;
-
         // if property changes and previous was Observable
         // we need to kill subscription
         cleanSubscription(_subs, key);
 
-        // observable input params are auto observed
-        if (isObservable(value)) {
-          nextProps[key] = void 0;
-          streamKeys.push(key);
-        }
-
+        // observable input params are added to observation
         // all static props are directly updated
-        else {
-          nextProps[key] = value;
+        if (isObservable(value)) {
+          isDirty = true;
+          _prevStreamProps[key] = value;
+          nextProps[key] = void 0; // reset prev prop when new one is Observable
+          streamKeys.push(key);
+        } else {
+          // forget outdated prev props
+          delete _prevStreamProps[key];
         }
       });
 
-      // remove obsolete props
-      // & update static props
-      if (isDirty) {
-        setStateProps(p => Object.assign({}, p, delProps, nextProps));
-      }
-
       // subscribe to new streams
+      // some values might be received in sync way: like `of(…)` or `startWith(…)`
+      // to optimize this we update all syncronously received values in one
+      // commit to the state
+      // {{{
+      let isSync = true;
       streamKeys.forEach(key => {
         _subs[key] = props[key]
           .pipe(
@@ -116,7 +113,14 @@ export function createElement$(element) {
           .subscribe({
             // on value updates -- update props
             next(data) {
-              setStateProps(p => Object.assign({}, p, { [key]: data }));
+              // set sync values
+              if (isSync) {
+                isDirty = true;
+                nextProps[key] = data;
+              } else {
+                // async set values
+                setStreamProps(p => Object.assign({}, p, { [key]: data }));
+              }
             },
             // on error -- rethrow error
             error (error) {
@@ -125,7 +129,14 @@ export function createElement$(element) {
             // on complete we just keep using accumulated value
           })
         });
+      isSync = false;
+      // }}}
 
+      // remove obsolete props
+      // & update static props
+      if (isDirty) {
+        setStreamProps(p => Object.assign({}, p, delProps, nextProps));
+      }
     }, [props]);
 
     // if error -- throw
@@ -133,28 +144,36 @@ export function createElement$(element) {
       throw error.error;
     }
 
-    // ensure controlled elements stay controlled
-    // if value is present and is not nullish
-    // we make the input controlled
-    if (
-      'value' in props
-      && props.value != null
-      && (
-        element == 'input' && props.type != 'file' && stateProps.type != 'file'
-        || element == 'select'
-        || element == 'textarea'
-      )
-    ) {
-      stateProps.value = stateProps.value ?? '';
-    }
-
-    // TODO: use statically available props in render phase
+    // using statically available props in render phase
     // so that `<$a alt="hello" href={ stream$ } >…</a>`
     // renders `<a alt="hello">…</a>` immediately
+    const derivedProps = Object.keys(props).reduce((p, key) => {
+      if (isObservable(props[key])) {
+        // ensure controlled elements stay controlled
+        // if value is present and is not nullish
+        // we make the input controlled
+        if (key == 'value'
+          && (element == 'input'
+            && props.type != 'file'
+            && streamProps.type != 'file'
+            || element == 'select'
+            || element == 'textarea'
+          )
+        ) {
+          p[key] = streamProps.value ?? '';
+        } else {
+          p[key] = streamProps[key];
+        }
+      } else {
+        p[key] = props[key];
+      }
+
+      return p;
+    }, Object.create(null));
 
     return createElement(
       element,
-      stateProps,
+      derivedProps,
       // if children exist
       // they might be observable
       // so we pass em to <$> fragment

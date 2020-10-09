@@ -21,7 +21,9 @@ export function $(props) {
   const children = props?.children;
 
   // store children
-  const [cn, setCn] = useState(null);
+  // null placeholder for Observables & Arrays
+  // and children for static children
+  const [cn, setCn] = useState(Array.isArray(children) || isObservable(children) ? null : children);
   const [error, setError] = useState(null);
 
   const destroy$ = useDestroyObservable();
