@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
-import { Observable, Subject } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { $ } from '../src/index';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -21,10 +21,16 @@ describe('Fragment', () => {
   });
 
   describe('Static', () => {
-    it('should render static child instantly', () =>{
+    it('should render only static child instantly', () =>{
       const App = () => <$>Hello world</$>;
       render(<App />, rootElement);
       expect(rootElement.innerHTML).toBe('Hello world');
+    });
+
+    it('should render mixed static child instantly', () =>{
+      const App = () => <$>Hello world { of(1) }</$>;
+      render(<App />, rootElement);
+      expect(rootElement.innerHTML).toBe('Hello world ');
     });
   })
 
@@ -99,13 +105,13 @@ describe('Fragment', () => {
     });
   });
 
-  describe('Updates', () => {
+  describe('Stream to Static updates', () => {
     it('should unsubscribe from previous observable', () => {
       let setState;
       let i = 0;
       const unsub = jest.fn();
       const createSource = () =>
-        new Observable((observer) => {
+        new Observable(observer => {
           observer.next(i);
           i++;
           return () => unsub();

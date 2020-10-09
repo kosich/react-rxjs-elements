@@ -1,6 +1,6 @@
 import { createElement, Fragment, useEffect, useState } from "react";
 import { isObservable } from "rxjs";
-import { takeUntil } from "rxjs/operators";
+import { distinctUntilChanged, takeUntil } from "rxjs/operators";
 import { useDestroyObservable } from "./shared";
 
 // TODO: add better TS support
@@ -20,40 +20,56 @@ import { useDestroyObservable } from "./shared";
 export function $(props) {
   const children = props?.children;
 
-  // store children
-  // null placeholder for Observables & Arrays
-  // and children for static children
-  const [cn, setCn] = useState(Array.isArray(children) || isObservable(children) ? null : children);
+  // CHORTCUT:
+  // if fragment has many children -- we render it with a <> that has
+  // <$> children in place of Observables
+  if (Array.isArray(children)){
+    return createElement(Fragment, null, ...children.map(c => isObservable(c) ? createElement($, null, c) : c));
+  }
+
+  // Single child:
+
+  // state for Observable children
+  const [streamChild, setStreamChild] = useState(null);
+
+  // store error indicator
   const [error, setError] = useState(null);
 
   const destroy$ = useDestroyObservable();
 
+  // react to child updates
   useEffect(() => {
-    // array of children, one of em might be observable
-    if (Array.isArray(children)) {
-      setCn(
-        // recursively create another $ for Observables
-        children.map((c) => (isObservable(c) ? createElement($, null, c) : c))
-      );
+    if (!isObservable(children)) {
       return;
     }
 
     // child is a single observable
-    if (isObservable(children)) {
-      const sub = children.pipe(takeUntil(destroy$)).subscribe({
-        next: setCn, // update the view
-        error(error) {
-          // wrap error in an object to be safe in case the error is nullish
-          setError({ error });
-        },
-        // on complete we just keep displaying accumulated value
-      });
+    // if the stream emits async - synchronously reset child to null
+    // else - use value from the stream to update the child
+    let syncChildValue = null;
+    let isSync = true;
+    const sub = children.pipe(distinctUntilChanged(), takeUntil(destroy$)).subscribe({
+      next(value) {
+        // synchronous values would be set in one run
+        if (isSync) {
+          syncChildValue = value;
+        } else {
+          setStreamChild(value);
+        }
+      }, // update the view
+      error(error) {
+        // wrap error in an object to be safe in case the error is nullish
+        setError({ error });
+      },
+      // on complete we just keep displaying accumulated value
+    });
+    isSync = false;
 
-      return () => sub.unsubscribe();
-    }
+    // make the sync update
+    setStreamChild(syncChildValue);
 
-    // child is a regular child, like you and me
-    setCn(children);
+    // clear subscription if Observable child changes
+    return () => sub.unsubscribe();
   }, [children]);
 
   // raise an error if Observable failed
@@ -61,10 +77,7 @@ export function $(props) {
     throw error.error;
   }
 
-  // NOTE: array children are rendered inside <></> fragment
-  //       while regular children are rendered directly as children of <$>,
-  //       without additional <>
-  //       this might be an unwanted behavior difference
-  // TODO: research for real-life effects of this difference
-  return Array.isArray(cn) ? createElement(Fragment, null, ...cn) : cn;
+  return isObservable(children)
+    ? streamChild // read child updates from state
+    : children; // child is a regular child, like you and me
 }
