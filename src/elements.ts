@@ -133,6 +133,25 @@ export function createElement$(element) {
       throw error.error;
     }
 
+    // ensure controlled elements stay controlled
+    // if value is present and is not nullish
+    // we make the input controlled
+    if (
+      'value' in props
+      && props.value != null
+      && (
+        element == 'input' && props.type != 'file' && stateProps.type != 'file'
+        || element == 'select'
+        || element == 'textarea'
+      )
+    ) {
+      stateProps.value = stateProps.value ?? '';
+    }
+
+    // TODO: use statically available props in render phase
+    // so that `<$a alt="hello" href={ stream$ } >…</a>`
+    // renders `<a alt="hello">…</a>` immediately
+
     return createElement(
       element,
       stateProps,
