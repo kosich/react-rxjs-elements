@@ -20,6 +20,14 @@ describe('Fragment', () => {
     rootElement = null;
   });
 
+  describe('Static', () => {
+    it('should render static child instantly', () =>{
+      const App = () => <$>Hello world</$>;
+      render(<App />, rootElement);
+      expect(rootElement.innerHTML).toBe('Hello world');
+    });
+  })
+
   describe('Single root', () => {
     let content$: Subject<any>;
 
