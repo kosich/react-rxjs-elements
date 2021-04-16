@@ -1,12 +1,10 @@
 const path = require('path');
-const webpackRxjsExternals = require('webpack-rxjs-externals');
+const webpackRxjsExternals = require('./webpack-rxjs-externals');
 
 
 module.exports = {
     entry: './src/index.ts',
     output: {
-        filename: 'index.js',
-        path: path.resolve(__dirname, '../dist'),
         library: 'react-rxjs-elements',
         libraryTarget: 'umd',
         publicPath: '/dist/',

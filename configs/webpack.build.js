@@ -3,5 +3,8 @@ const { merge } = require('webpack-merge');
 
 
 module.exports = merge(baseConfig, {
-    mode: 'development'
+    mode: 'development',
+    output: {
+        filename: 'react-rxjs-elements.js'
+    }
 });
