@@ -1,6 +1,6 @@
 {
   "name": "react-rxjs-elements",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "React fragment for RxJS content",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
