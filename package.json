@@ -21,7 +21,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
-    "np": "npm run clean && npm run build && np && npm run clean"
+    "np": "npm run clean && npm run build && np --any-branch && npm run clean"
   },
   "repository": {
     "type": "git",

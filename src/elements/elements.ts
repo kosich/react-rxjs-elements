@@ -2,7 +2,7 @@ import { ComponentClass, createElement, FunctionComponent, useEffect, useState }
 import { isObservable, Observable } from 'rxjs';
 import { distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { $ } from './fragment';
-import { useDestroyObservable, useEmptyObject } from './shared';
+import { useDestroyObservable, useEmptyObject } from '../shared';
 
 // TODO: handle ref
 
