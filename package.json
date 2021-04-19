@@ -1,6 +1,6 @@
 {
   "name": "react-rxjs-elements",
-  "version": "0.0.6",
+  "version": "0.1.0-0",
   "description": "React fragment for RxJS content",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -21,7 +21,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
-    "np": "npm run clean && npm run build && np && npm run clean"
+    "np": "npm run clean && npm run build && np --any-branch && npm run clean"
   },
   "repository": {
     "type": "git",

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import { Observable, of, Subject } from 'rxjs';
-import { $input, createElement$ } from '../src/index';
+import { $input, createElement$ } from '../src/elements/index';
 
 // TODO: cover errors on Observables
 

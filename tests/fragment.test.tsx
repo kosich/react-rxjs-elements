@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { render, unmountComponentAtNode } from "react-dom";
 import { act } from "react-dom/test-utils";
 import { Observable, of, Subject } from 'rxjs';
-import { $ } from '../src/index';
+import { $ } from '../src/elements/index';
 import { ErrorBoundary } from './ErrorBoundary';
 
 

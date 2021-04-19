@@ -1,7 +1,7 @@
 import { createElement, Fragment, useEffect, useState } from "react";
 import { isObservable } from "rxjs";
 import { distinctUntilChanged, takeUntil } from "rxjs/operators";
-import { useDestroyObservable } from "./shared";
+import { useDestroyObservable } from "../shared";
 
 // TODO: add better TS support
 
