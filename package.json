@@ -58,7 +58,7 @@
     "webpack-rxjs-externals": "2.0.0"
   },
   "peerDependencies": {
-    "react": "16.x||17.x",
+    "react": "16.x||17.x||18.x",
     "rxjs": "^6.0.0"
   },
   "files": [
